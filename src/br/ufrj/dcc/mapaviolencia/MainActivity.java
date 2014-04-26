@@ -47,9 +47,9 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 
 		map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
-		
+
 		new RequestTask().execute();
-		
+
 		map.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation , 15));
 		map.animateCamera(CameraUpdateFactory.zoomTo(10), 2000, null);
 	}
@@ -63,15 +63,15 @@ public class MainActivity extends Activity {
 			public boolean onMarkerClick(Marker marker) {
 				return false;
 			}
-			
+
 		});  
 		map.setInfoWindowAdapter(new InfoWindowAdapter() {
-			
+
 			@Override
 			public View getInfoWindow(Marker args) {
 				return null;
 			}
-			
+
 			@Override
 			public View getInfoContents(Marker marker) {
 				map.setOnInfoWindowClickListener(new OnInfoWindowClickListener() {          
@@ -90,52 +90,56 @@ public class MainActivity extends Activity {
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
-	
+
 	class RequestTask extends AsyncTask<String, String, String>{
 
-	    @Override
-	    protected String doInBackground(String... uri) {
-	        HttpClient httpclient = new DefaultHttpClient();
-	        HttpResponse response;
-	        String responseString = null;
-	        try {
-	            response = httpclient.execute(new HttpGet("http://192.168.1.41:8080/mapaviolencia/rest/noticias"));
-	            StatusLine statusLine = response.getStatusLine();
-	            if(statusLine.getStatusCode() == HttpStatus.SC_OK){
-	                ByteArrayOutputStream out = new ByteArrayOutputStream();
-	                response.getEntity().writeTo(out);
-	                out.close();
-	                responseString = out.toString();
-	            } else{
-	                //Closes the connection.
-	                response.getEntity().getContent().close();
-	                throw new IOException(statusLine.getReasonPhrase());
-	            }
-	        } catch (ClientProtocolException e) {
-	            //TODO Handle problems..
-	        } catch (IOException e) {
-	            //TODO Handle problems..
-	        }
-	        return responseString;
-	    }
+		@Override
+		protected String doInBackground(String... uri) {
+			HttpClient httpclient = new DefaultHttpClient();
+			HttpResponse response;
+			String responseString = null;
+			try {
+				response = httpclient.execute(new HttpGet("http://mapaviolencia.ufrj.cloudbees.net/rest/noticias"));
+				StatusLine statusLine = response.getStatusLine();
+				if(statusLine.getStatusCode() == HttpStatus.SC_OK){
+					ByteArrayOutputStream out = new ByteArrayOutputStream();
+					response.getEntity().writeTo(out);
+					out.close();
+					responseString = out.toString();
+				} else{
+					//Closes the connection.
+					response.getEntity().getContent().close();
+					throw new IOException(statusLine.getReasonPhrase());
+				}
+			} catch (ClientProtocolException e) {
+				//TODO Handle problems..
+			} catch (IOException e) {
+				//TODO Handle problems..
+			}
+			return responseString;
+		}
 
-	    @Override
-	    protected void onPostExecute(String result) {
-	        super.onPostExecute(result);
-	        try {
-	        	JSONArray array = new JSONArray(result);
-				for (int i=0; i<array.length(); i++) {
+		@Override
+		protected void onPostExecute(String result) {
+			super.onPostExecute(result);
+			JSONArray array = null;
+			try {
+				array = new JSONArray(result);
+			} catch (JSONException e1) {
+				e1.printStackTrace();
+			}
+			for (int i=0; i<array.length(); i++) {
+				try {
 					JSONObject jsonObject = array.getJSONObject(i);
 					String title = jsonObject.getString("titulo");
 					String url = jsonObject.getString("url");
 					double latitude = jsonObject.getDouble("latitude");
 					double longitude = jsonObject.getDouble("longitude");
 					addMarker(title, url, latitude, longitude);
+				} catch (JSONException e) {
+					e.printStackTrace();
 				}
-			} catch (JSONException e) {
-				e.printStackTrace();
 			}
-	        
-	    }
+		}
 	}
 }
