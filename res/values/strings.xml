@@ -2,16 +2,18 @@
 <resources>
 
     <string name="app_name">Mapa da Violência</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="rest_api_url">http://mapaviolencia.ufrj.cloudbees.net/rest/noticias/</string>
+
     <string name="action_filter">Filtrar</string>
     <string name="action_about">Sobre</string>
     <string name="action_refresh">Atualizar</string>
+    
     <string name="title_activity_map">Mapa da Violência</string>
-    <string name="title_section1">Desde hoje</string>
+    <string name="title_section1">Hoje</string>
     <string name="title_section2">Desde ontem</string>
     <string name="title_section3">Desde uma semana</string>
     <string name="title_section4">Desde um mês</string>
-    <string name="title_activity_main_swype">MainActivity</string>
-    <string name="action_settings">Settings</string>
+
+    <string name="carregando">Carregando&#8230;</string>
 
 </resources>
