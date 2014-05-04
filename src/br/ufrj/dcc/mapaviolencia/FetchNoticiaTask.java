@@ -15,10 +15,10 @@ import com.google.gson.reflect.TypeToken;
 class FetchNoticiaTask extends AsyncTask<String, String, String> {
 
 	public enum Since {
-		SINCE_TODAY,
-		SINCE_YESTERDAY,
 		SINCE_LASTWEEK,
-		SINCE_LASTMONTH
+		SINCE_ONE_MONTH,
+		SINCE_TWO_MONTH,
+		SINCE_THREE_MONTH,
 	}
 	
 	private static final Type noticiasListType = new TypeToken<List<Noticia>>(){}.getType();
@@ -40,21 +40,22 @@ class FetchNoticiaTask extends AsyncTask<String, String, String> {
 	
 	private Long getTimestamp(Since since) {
 		Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-		calendar.clear(Calendar.HOUR_OF_DAY);
-		calendar.clear(Calendar.MINUTE);
-		calendar.clear(Calendar.SECOND);
-		calendar.clear(Calendar.MILLISECOND);
+		calendar.set(Calendar.HOUR_OF_DAY, 0);
+		calendar.set(Calendar.MINUTE, 0);
+		calendar.set(Calendar.SECOND, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
 		switch (since) {
-		case SINCE_TODAY:
-			break;
-		case SINCE_YESTERDAY:
-			calendar.add(Calendar.DAY_OF_YEAR, -1);
-			break;
 		case SINCE_LASTWEEK:
 			calendar.add(Calendar.WEEK_OF_YEAR, -1);
 			break;
-		case SINCE_LASTMONTH:
+		case SINCE_ONE_MONTH:
 			calendar.add(Calendar.MONTH, -1);
+			break;
+		case SINCE_TWO_MONTH:
+			calendar.add(Calendar.MONTH, -2);
+			break;
+		case SINCE_THREE_MONTH:
+			calendar.add(Calendar.MONTH, -3);
 			break;
 		default:
 			throw new IllegalArgumentException();
@@ -65,7 +66,6 @@ class FetchNoticiaTask extends AsyncTask<String, String, String> {
 	@Override
 	protected void onPreExecute() {
 		dialog = ProgressDialog.show(mContext, "", mapActivity.getString(R.string.carregando), true);
-		mapActivity.getMap().clear();
 	}
 
 	@Override
@@ -78,9 +78,8 @@ class FetchNoticiaTask extends AsyncTask<String, String, String> {
 	@Override
 	protected void onPostExecute(String result) {
 		List<Noticia> noticias = gson.fromJson(result, noticiasListType);
-		for (Noticia noticia : noticias) {
-			mapActivity.addMapMarker(noticia);
-		}
+		mapActivity.setNoticias(noticias);
+		mapActivity.updateMapMarkers();
 		dialog.dismiss();
 	}
 

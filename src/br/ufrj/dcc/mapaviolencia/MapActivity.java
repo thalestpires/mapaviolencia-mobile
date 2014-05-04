@@ -1,39 +1,54 @@
 package br.ufrj.dcc.mapaviolencia;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
 import android.app.ActionBar;
-import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
+import android.content.DialogInterface.OnMultiChoiceClickListener;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Toast;
 import br.ufrj.dcc.mapaviolencia.FetchNoticiaTask.Since;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
+import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MapActivity extends Activity implements ActionBar.OnNavigationListener {
+public class MapActivity extends FragmentActivity implements ActionBar.OnNavigationListener, OnMapClickListener {
 	
 	private final LatLng defaultLocation = new LatLng(-22.762295, -43.15567);
 	private GoogleMap map;
-	Map<String, Object> mapMarkerId = new HashMap<String, Object>();
+	Map<String, Noticia> mapMarkerNoticia = new HashMap<String, Noticia>();
 	
-	private Since since = Since.SINCE_TODAY;
+	private Since since = Since.SINCE_LASTWEEK;
 	
 	private List<Noticia> noticias;
+	
+	private static final CategoriasViolencia[] CATEGORIAS = CategoriasViolencia.values();
+	
+	private boolean[] categoriasChecked = new boolean[CATEGORIAS.length];
+	
+	private LinkedHashSet<CategoriasViolencia> categoriasFilter = new LinkedHashSet<CategoriasViolencia>(
+		Arrays.asList(CATEGORIAS)
+	);
 	
 	/**
 	 * The serialization (saved instance state) Bundle key representing the
@@ -45,6 +60,11 @@ public class MapActivity extends Activity implements ActionBar.OnNavigationListe
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_news_map);
+		
+		for (int i = 0; i < categoriasChecked.length; i++) {
+			categoriasChecked[i] = true;
+		}
+		
 
 		// Set up the action bar to show a dropdown list.
 		final ActionBar actionBar = getActionBar();
@@ -64,6 +84,24 @@ public class MapActivity extends Activity implements ActionBar.OnNavigationListe
 								}), this);
 		
 		setMap(((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap());
+		getMap().setInfoWindowAdapter(new MapInfoWindow(getLayoutInflater(), mapMarkerNoticia));
+		getMap().setOnInfoWindowClickListener(new OnInfoWindowClickListener() {          
+			public void onInfoWindowClick(Marker marker) {
+				Noticia noticia = (Noticia) mapMarkerNoticia.get(marker.getId());
+				Uri uri = Uri.parse(noticia.getUrl());
+				if (uri != null) {
+					startActivity(new Intent(Intent.ACTION_VIEW, uri));
+				}
+			}
+		});
+		getMap().setOnMarkerClickListener(new OnMarkerClickListener() {
+			@Override
+			public boolean onMarkerClick(Marker marker) {
+				return false;
+			}
+
+		}); 
+		
 		getMap().moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation , 15));
 		getMap().animateCamera(CameraUpdateFactory.zoomTo(10), 2000, null);
 
@@ -107,16 +145,46 @@ public class MapActivity extends Activity implements ActionBar.OnNavigationListe
 		if (id == R.id.action_refresh) {
 			doFetchNoticias();
 			return true;
+		} else if (id == R.id.action_about) {
+			Toast.makeText(this, R.string.about_message, Toast.LENGTH_LONG).show();
+		} else if (id == R.id.action_filter) {
+			final CharSequence[] items = new CharSequence[CATEGORIAS.length];
+			for (int i = 0; i < items.length; i++) {
+				items[i] = CATEGORIAS[i].toString();
+			}
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.setTitle("Selecione as categorias");
+			builder.setPositiveButton("OK", new OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					updateMapMarkers();
+				}
+			});
+			builder.setMultiChoiceItems(items, categoriasChecked, new OnMultiChoiceClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+					CharSequence charSequence = items[which];
+					CategoriasViolencia categoria = CategoriasViolencia.valueOf(charSequence.toString());
+					if (isChecked) {
+						categoriasFilter.add(categoria);
+					} else {
+						categoriasFilter.remove(categoria);
+					}
+				}
+			});
+			AlertDialog alert = builder.create();
+			alert.show();
+			
 		}
 		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
 	public boolean onNavigationItemSelected(int position, long id) {
-		if (position == 0) since = Since.SINCE_TODAY;
-		else if (position == 1) since = Since.SINCE_YESTERDAY;
-		else if (position == 2) since = Since.SINCE_LASTWEEK;
-		else if (position == 3) since = Since.SINCE_LASTMONTH;
+		if (position == 0) since = Since.SINCE_LASTWEEK;
+		else if (position == 1) since = Since.SINCE_ONE_MONTH;
+		else if (position == 2) since = Since.SINCE_TWO_MONTH;
+		else if (position == 3) since = Since.SINCE_THREE_MONTH;
 		else throw new IllegalArgumentException();
 		doFetchNoticias();
 		return true;
@@ -130,40 +198,24 @@ public class MapActivity extends Activity implements ActionBar.OnNavigationListe
 		this.map = map;
 	}
 	
+	public void clearMarkers() {
+		this.mapMarkerNoticia.clear();
+		getMap().clear();
+	}
+	
+	public void updateMapMarkers() {
+		clearMarkers();
+		for (Noticia n : noticias) {
+			if (! Collections.disjoint(n.getCategoriasViolencia(), categoriasFilter)) {
+				addMapMarker(n);
+			}
+		}
+	}
+	
 	public void addMapMarker(Noticia noticia) {
-		String title = noticia.getTitulo();
-		String url = noticia.getUrl();
-		double lat = noticia.getLatitude();
-		double longitude = noticia.getLongitude();
-		
-		LatLng newLocation = new LatLng(lat, longitude);
-		Marker marker = getMap().addMarker(new MarkerOptions().position(newLocation).title(title));
-		this.mapMarkerId.put(marker.getId(), url);
-		this.getMap().setOnMarkerClickListener(new OnMarkerClickListener() {
-			@Override
-			public boolean onMarkerClick(Marker marker) {
-				return false;
-			}
-
-		});  
-		this.getMap().setInfoWindowAdapter(new InfoWindowAdapter() {
-
-			@Override
-			public View getInfoWindow(Marker args) {
-				return null;
-			}
-
-			@Override
-			public View getInfoContents(Marker marker) {
-				getMap().setOnInfoWindowClickListener(new OnInfoWindowClickListener() {          
-					public void onInfoWindowClick(Marker marker) {
-						String noticia = (String) mapMarkerId.get(marker.getId());
-						startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(noticia)));
-					}
-				});
-				return null;
-			}
-		});
+		LatLng newLocation = new LatLng(noticia.getLatitude(), noticia.getLongitude());
+		Marker marker = getMap().addMarker(new MarkerOptions().position(newLocation));
+		this.mapMarkerNoticia.put(marker.getId(), noticia);
 	}
 
 	public List<Noticia> getNoticias() {
@@ -174,4 +226,10 @@ public class MapActivity extends Activity implements ActionBar.OnNavigationListe
 		this.noticias = noticias;
 	}
 
+	@Override
+	public void onMapClick(LatLng clickLocation) {
+		// TODO Auto-generated method stub
+		
+	}
+	
 }
