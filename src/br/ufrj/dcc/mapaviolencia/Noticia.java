@@ -16,6 +16,7 @@ public class Noticia {
 	private String geolocalizacao;
 	private double latitude;
 	private double longitude;
+	private NiveisLocalizacao nivelLocalizacao;
 	private Set<CategoriasViolencia> categoriasViolencia = new HashSet<CategoriasViolencia>();
 
 	public String getCorpo() {
@@ -96,6 +97,14 @@ public class Noticia {
 
 	public void setCategoriasViolencia(Set<CategoriasViolencia> categoriasViolencia) {
 		this.categoriasViolencia = categoriasViolencia;
+	}
+	
+	public NiveisLocalizacao getNivelLocalizacao() {
+		return nivelLocalizacao;
+	}
+
+	public void setNivelLocalizacao(NiveisLocalizacao nivelLocalizacao) {
+		this.nivelLocalizacao = nivelLocalizacao;
 	}
 	
 	@Override

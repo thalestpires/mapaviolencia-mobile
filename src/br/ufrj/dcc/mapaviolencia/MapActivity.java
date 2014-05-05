@@ -28,6 +28,7 @@ import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -214,7 +215,21 @@ public class MapActivity extends FragmentActivity implements ActionBar.OnNavigat
 	
 	public void addMapMarker(Noticia noticia) {
 		LatLng newLocation = new LatLng(noticia.getLatitude(), noticia.getLongitude());
-		Marker marker = getMap().addMarker(new MarkerOptions().position(newLocation));
+		float hue;
+		switch (noticia.getNivelLocalizacao()) {
+		case LOGRADOURO:
+			hue = BitmapDescriptorFactory.HUE_YELLOW; break;
+		case BAIRRO:
+			hue = BitmapDescriptorFactory.HUE_RED; break;
+		case CIDADE:
+			hue = BitmapDescriptorFactory.HUE_GREEN; break;
+		case ESTADO:
+			hue = BitmapDescriptorFactory.HUE_BLUE; break;
+		default:
+			throw new IllegalArgumentException();
+		}
+		MarkerOptions markerOptions = new MarkerOptions().position(newLocation).icon(BitmapDescriptorFactory.defaultMarker(hue));
+		Marker marker = getMap().addMarker(markerOptions);
 		this.mapMarkerNoticia.put(marker.getId(), noticia);
 	}
 
