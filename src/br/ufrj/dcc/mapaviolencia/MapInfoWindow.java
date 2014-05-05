@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
+import com.google.android.gms.drive.internal.ac;
 import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
 import com.google.android.gms.maps.model.Marker;
 
@@ -18,11 +19,12 @@ public class MapInfoWindow implements InfoWindowAdapter {
 
 	private static PrettyTime prettyTime = new PrettyTime(new Locale("pt"));
 	
-	private LayoutInflater inflater;
 	private Map<String, Noticia> mapMarketNoticia;
 
-	public MapInfoWindow(LayoutInflater inflater, Map<String, Noticia> mapMarketNoticia) {
-		this.inflater = inflater;
+	private MapActivity activity;
+
+	public MapInfoWindow(MapActivity activity, Map<String, Noticia> mapMarketNoticia) {
+		this.activity = activity;
 		this.mapMarketNoticia = mapMarketNoticia;
 	}
 	
@@ -35,7 +37,7 @@ public class MapInfoWindow implements InfoWindowAdapter {
 	public View getInfoContents(Marker marker) {
 		Noticia noticia = mapMarketNoticia.get(marker.getId());
 		
-		View view = this.inflater.inflate(R.layout.infowindow, null);
+		View view = activity.getLayoutInflater().inflate(R.layout.infowindow, null);
 		
 		TextView title = (TextView)view.findViewById(R.id.infowindow_title);
 		title.setText(noticia.getTitulo());

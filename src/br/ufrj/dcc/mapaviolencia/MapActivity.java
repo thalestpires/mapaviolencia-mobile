@@ -85,7 +85,7 @@ public class MapActivity extends FragmentActivity implements ActionBar.OnNavigat
 								}), this);
 		
 		setMap(((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap());
-		getMap().setInfoWindowAdapter(new MapInfoWindow(getLayoutInflater(), mapMarkerNoticia));
+		getMap().setInfoWindowAdapter(new MapInfoWindow(this, mapMarkerNoticia));
 		getMap().setOnInfoWindowClickListener(new OnInfoWindowClickListener() {          
 			public void onInfoWindowClick(Marker marker) {
 				Noticia noticia = (Noticia) mapMarkerNoticia.get(marker.getId());
@@ -246,5 +246,6 @@ public class MapActivity extends FragmentActivity implements ActionBar.OnNavigat
 		// TODO Auto-generated method stub
 		
 	}
+
 	
 }
