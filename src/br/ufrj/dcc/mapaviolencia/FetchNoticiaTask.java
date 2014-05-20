@@ -1,6 +1,7 @@
 package br.ufrj.dcc.mapaviolencia;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
@@ -20,7 +21,7 @@ class FetchNoticiaTask extends AsyncTask<String, String, String> {
 		SINCE_TWO_MONTH,
 		SINCE_THREE_MONTH,
 	}
-	
+
 	private static final Type noticiasListType = new TypeToken<List<Noticia>>(){}.getType();
 
 	private final Gson gson = new Gson();
@@ -28,7 +29,7 @@ class FetchNoticiaTask extends AsyncTask<String, String, String> {
 	private final MapActivity mapActivity;
 	private final Context mContext;
 	private final Since since;
-	
+
 	private ProgressDialog dialog;
 
 
@@ -37,7 +38,7 @@ class FetchNoticiaTask extends AsyncTask<String, String, String> {
 		this.mContext = mapActivity;
 		this.since = since;
 	}
-	
+
 	private Long getTimestamp(Since since) {
 		Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 		calendar.set(Calendar.HOUR_OF_DAY, 0);
@@ -78,7 +79,7 @@ class FetchNoticiaTask extends AsyncTask<String, String, String> {
 	@Override
 	protected void onPostExecute(String result) {
 		List<Noticia> noticias = gson.fromJson(result, noticiasListType);
-		mapActivity.setNoticias(noticias);
+		App.setNoticias(new ArrayList<Noticia>(noticias));
 		mapActivity.updateMapMarkers();
 		dialog.dismiss();
 	}

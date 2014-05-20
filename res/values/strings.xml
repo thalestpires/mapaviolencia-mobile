@@ -3,18 +3,17 @@
 
     <string name="app_name">Mapa da Violência</string>
     <string name="rest_api_url">http://mapaviolencia.ufrj.cloudbees.net/rest/noticias/</string>
-     <string name="about_message">Dúvidas, sugestões ou críticas: mapaviolencia.ufrj@gmail.com</string>
+    <string name="about_message">Dúvidas, sugestões ou críticas: mapaviolencia.ufrj@gmail.com</string>
     
+    <string name="action_list">Lista</string>
     <string name="action_filter">Filtrar</string>
     <string name="action_about">Sobre</string>
     <string name="action_refresh">Atualizar</string>
-    
     <string name="title_activity_map">Mapa da Violência</string>
     <string name="title_section1">Desde uma semana</string>
     <string name="title_section2">Desde um mês</string>
     <string name="title_section3">Desde dois meses</string>
     <string name="title_section4">Desde três meses</string>
-
     <string name="carregando">Carregando&#8230;</string>
 
 </resources>

@@ -1,24 +1,16 @@
 package br.ufrj.dcc.mapaviolencia;
 
-import java.util.Date;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import org.ocpsoft.pretty.time.PrettyTime;
-
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
-import com.google.android.gms.drive.internal.ac;
 import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
 import com.google.android.gms.maps.model.Marker;
 
 public class MapInfoWindow implements InfoWindowAdapter {
 
-	private static PrettyTime prettyTime = new PrettyTime(new Locale("pt"));
-	
 	private Map<String, Noticia> mapMarketNoticia;
 
 	private MapActivity activity;
@@ -46,7 +38,7 @@ public class MapInfoWindow implements InfoWindowAdapter {
 		subtitle.setText(noticia.getSubTitulo());
 		
 		TextView date = (TextView)view.findViewById(R.id.infowindow_date);
-		date.setText(prettyTime.format(new Date(noticia.getTimestamp())));
+		date.setText(noticia.getPrettyTime());
 		
 		TextView tag = (TextView)view.findViewById(R.id.infowindow_tag);
 		Set<CategoriasViolencia> categorias = noticia.getCategoriasViolencia();

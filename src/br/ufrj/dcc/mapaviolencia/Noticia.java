@@ -1,10 +1,19 @@
 package br.ufrj.dcc.mapaviolencia;
 
+import java.io.Serializable;
+import java.util.Date;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 
-public class Noticia {
+import org.ocpsoft.pretty.time.PrettyTime;
 
+public class Noticia implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+
+	private static PrettyTime prettyTime = new PrettyTime(new Locale("pt"));
+	
 	public static final String FIELD_TIMESTAMP = "timestamp";
 
 	private String id;
@@ -105,6 +114,10 @@ public class Noticia {
 
 	public void setNivelLocalizacao(NiveisLocalizacao nivelLocalizacao) {
 		this.nivelLocalizacao = nivelLocalizacao;
+	}
+	
+	public String getPrettyTime() {
+		return prettyTime.format(new Date(getTimestamp()));
 	}
 	
 	@Override

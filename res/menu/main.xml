@@ -2,6 +2,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="br.ufrj.dcc.mapaviolencia.MapActivity" >
     
+    <item android:id="@+id/action_list"
+          android:icon="@android:drawable/ic_menu_sort_by_size"
+          android:title="@string/action_list"
+          android:showAsAction="ifRoom" />
+    
     <item android:id="@+id/action_filter"
           android:icon="@android:drawable/ic_menu_search"
           android:title="@string/action_filter"

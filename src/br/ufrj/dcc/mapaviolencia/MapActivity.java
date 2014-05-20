@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 
 import android.app.ActionBar;
@@ -40,8 +39,6 @@ public class MapActivity extends FragmentActivity implements ActionBar.OnNavigat
 	Map<String, Noticia> mapMarkerNoticia = new HashMap<String, Noticia>();
 	
 	private Since since = Since.SINCE_LASTWEEK;
-	
-	private List<Noticia> noticias;
 	
 	private static final CategoriasViolencia[] CATEGORIAS = CategoriasViolencia.values();
 	
@@ -133,7 +130,7 @@ public class MapActivity extends FragmentActivity implements ActionBar.OnNavigat
 	public boolean onCreateOptionsMenu(Menu menu) {
 
 		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.map, menu);
+		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
 
@@ -148,6 +145,8 @@ public class MapActivity extends FragmentActivity implements ActionBar.OnNavigat
 			return true;
 		} else if (id == R.id.action_about) {
 			Toast.makeText(this, R.string.about_message, Toast.LENGTH_LONG).show();
+		} else if (id == R.id.action_list) {
+			startActivity(new Intent(this, NoticiaListActivity.class));
 		} else if (id == R.id.action_filter) {
 			final CharSequence[] items = new CharSequence[CATEGORIAS.length];
 			for (int i = 0; i < items.length; i++) {
@@ -206,7 +205,7 @@ public class MapActivity extends FragmentActivity implements ActionBar.OnNavigat
 	
 	public void updateMapMarkers() {
 		clearMarkers();
-		for (Noticia n : noticias) {
+		for (Noticia n : App.getNoticias()) {
 			if (! Collections.disjoint(n.getCategoriasViolencia(), categoriasFilter)) {
 				addMapMarker(n);
 			}
@@ -233,19 +232,10 @@ public class MapActivity extends FragmentActivity implements ActionBar.OnNavigat
 		this.mapMarkerNoticia.put(marker.getId(), noticia);
 	}
 
-	public List<Noticia> getNoticias() {
-		return noticias;
-	}
-
-	public void setNoticias(List<Noticia> noticias) {
-		this.noticias = noticias;
-	}
-
 	@Override
 	public void onMapClick(LatLng clickLocation) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	
 }
