@@ -6,6 +6,8 @@ import java.util.Locale;
 import org.ocpsoft.pretty.time.PrettyTime;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +21,8 @@ public class NoticiaListViewAdapter extends BaseAdapter {
 	private LayoutInflater mInflater;
 	
 	private List<Noticia> noticias;
+	
+	private Noticia noticia;
 
 	public NoticiaListViewAdapter(Context context, List<Noticia> noticias) {
 		this.noticias = noticias;
@@ -39,7 +43,7 @@ public class NoticiaListViewAdapter extends BaseAdapter {
 
 	public View getView(int position, View view, ViewGroup parent) { 
 
-		Noticia noticia = noticias.get(position);
+		noticia = noticias.get(position);
 
 		//infla o layout para podermos pegar as views 
 		view = mInflater.inflate(R.layout.list_item, null); 
@@ -49,8 +53,26 @@ public class NoticiaListViewAdapter extends BaseAdapter {
 
 		TextView data = ((TextView) view.findViewById(R.id.list_item_data)); 
 		data.setText(noticia.getPrettyTime());
+		
+		TextView localizacao = ((TextView) view.findViewById(R.id.list_item_localizacao));
+		localizacao.setText(noticia.getGeolocalizacao());
 
+		view.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+//				Noticia noticia = (Noticia) mapMarkerNoticia.get(marker.getId());
+				Uri uri = Uri.parse(noticia.getUrl());
+				if (uri != null) {
+					v.getContext().startActivity(new Intent(Intent.ACTION_VIEW, uri));
+				}
+				
+			}
+		});
 		//retorna a view com as informações 
 		return view; 
 	} 
+	
+	
+	
 }

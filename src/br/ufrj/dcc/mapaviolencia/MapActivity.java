@@ -36,7 +36,7 @@ public class MapActivity extends FragmentActivity implements ActionBar.OnNavigat
 	
 	private final LatLng defaultLocation = new LatLng(-22.762295, -43.15567);
 	private GoogleMap map;
-	Map<String, Noticia> mapMarkerNoticia = new HashMap<String, Noticia>();
+	public Map<String, Noticia> mapMarkerNoticia = new HashMap<String, Noticia>();
 	
 	private Since since = Since.SINCE_LASTWEEK;
 	
